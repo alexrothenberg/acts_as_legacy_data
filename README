@@ -1,5 +1,7 @@
 === ActsAsSomebodyElsesData
 
+* http://github.com/alexrothenberg/acts_as_somebody_elses_data/tree/master
+
 	This plugin provides the ability to create models for existing tables in an Oracle database while still allowing you to use mysql for development.  This plugin was extracted from a project where I needed to 
 	1 - Access existing tables in Oracle in production. 
 	  A. I did not own the schema and so my migrations should not run there
@@ -9,7 +11,7 @@
 	
 === Installation
 
-	* script/plugin install path/to/repository/acts_as_somebody_elses_data
+	* script/plugin install git://github.com/alexrothenberg/acts_as_somebody_elses_data
 	
 === Example
 # Create a model to access 'some_read_only_table' in the 'owner_name' schema
