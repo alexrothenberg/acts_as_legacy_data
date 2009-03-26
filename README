@@ -1,0 +1,57 @@
+=== ActsAsSomebodyElsesData
+
+	This plugin provides the ability to create models for existing tables in an Oracle database while still allowing you to use mysql for development.  This plugin was extracted from a project where I needed to 
+	1 - Access existing tables in Oracle in production. 
+	  A. I did not own the schema and so my migrations should not run there
+	  B. Sometimes I did not own the data so should treat it as read-only
+	  C. The SQL statements had to include the schema name (i.e. 'SELECT * from owner.table')
+	2 - In test and development I wanted to use mysql or sqllite and not install the Oracle client
+	
+=== Installation
+
+	* script/plugin install path/to/repository/acts_as_somebody_elses_data
+	
+=== Example
+# Create a model to access 'some_read_only_table' in the 'owner_name' schema
+# Any writes (create, save & destroy) are disallowed and will raise ActiveRecord::ReadOnlyRecord
+class SomeReadOnlyModel < ActiveRecord::Base
+  acts_as_somebody_elses_data :owner_name
+
+  set_all_readonly
+  set_table_name :some_read_only_table #not necessary if the table name follows ActiveRecord conventions 
+end
+
+# Create a model to access 'some_writable_table' in the 'owner_name' schema
+# Writes are allowed
+class SomeWritableModel < ActiveRecord::Base
+  acts_as_somebody_elses_data :owner_name
+
+  set_table_name :some_writable_table #not necessary if the table name follows ActiveRecord conventions
+end
+ 
+# Wrap your migration to only run in the development and test environments
+# In development and test we want to create stub versions of these existing tables in our local database
+class StubSomeReadOnlyTable < ActiveRecord::Migration
+  def self.up
+    if SomeReadOnlyModel.stub_tables?
+      create_table :some_read_only_table do |t|
+        t.string :some_field
+      end
+    end
+  end
+
+  def self.down
+    if SomeReadOnlyModel.stub_tables?
+      drop_table :some_read_only_table
+    end
+  end
+end
+			
+=== Todo
+  *         
+        
+
+            
+
+
+Copyright (c) 2007 Alex Rothenberg, released under the MIT license
