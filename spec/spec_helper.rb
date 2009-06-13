@@ -10,5 +10,5 @@ require 'mocha'
 Spec::Runner.configure do |config|
   config.mock_with :mocha
 end
-require 'lib/somebody_elses_data'
+require 'lib/legacy_data'
 

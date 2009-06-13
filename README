@@ -1,6 +1,6 @@
-=== ActsAsSomebodyElsesData
+=== ActsAsLegacyData
 
-* http://github.com/alexrothenberg/acts_as_somebody_elses_data/
+* http://github.com/alexrothenberg/acts_as_legacy_data/
 
 	This plugin provides the ability to create models for existing tables in an Oracle database while still allowing you to use mysql for development.  This plugin was extracted from a project where I needed to 
 	1 - Access existing tables in Oracle in production. 
@@ -11,13 +11,21 @@
 	
 === Installation
 
-	* script/plugin install git://github.com/alexrothenberg/acts_as_somebody_elses_data
+	* script/plugin install git://github.com/alexrothenberg/acts_as_legacy_data
+
+=== Use
+
+  script/generate legacy_model owner.tbl
+  
+  creates app/models/.rb
+  creates db/migrations/20090612_create_stub_tbl_table.rb
+  
 	
 === Example
 # Create a model to access 'some_read_only_table' in the 'owner_name' schema
 # Any writes (create, save & destroy) are disallowed and will raise ActiveRecord::ReadOnlyRecord
 class SomeReadOnlyModel < ActiveRecord::Base
-  acts_as_somebody_elses_data :owner_name
+  acts_as_legacy_data :owner_name
 
   set_all_readonly
   set_table_name :some_read_only_table #not necessary if the table name follows ActiveRecord conventions 
@@ -26,7 +34,7 @@ end
 # Create a model to access 'some_writable_table' in the 'owner_name' schema
 # Writes are allowed
 class SomeWritableModel < ActiveRecord::Base
-  acts_as_somebody_elses_data :owner_name
+  acts_as_legacy_data :owner_name
 
   set_table_name :some_writable_table #not necessary if the table name follows ActiveRecord conventions
 end

@@ -6,11 +6,9 @@ require 'spec'
 require 'spec/rake/spectask'
 
 desc "Run all application specs with RCov"
-  Spec::Rake::SpecTask.new(:spec) do |t|
-    t.spec_files = FileList['spec/**/*_spec.rb']
-#    t.rcov = true
-#    t.rcov_opts = ['--exclude', '_spec,spec_helper,metaid,boot.rb']
-  end
+Spec::Rake::SpecTask.new(:spec) do |t|
+  t.spec_files = FileList['spec/**/*_spec.rb']
+end
 
 desc 'Run all tests of acts_as_somebody_elses_data plugin.'
 Rake::TestTask.new(:test) do |t|

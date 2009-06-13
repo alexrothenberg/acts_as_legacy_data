@@ -1,6 +1,6 @@
 module ActiveRecord #:nodoc:
   module Acts #:nodoc:
-    module SomebodyElsesData #:nodoc:
+    module LegacyData #:nodoc:
       ENVIRONMENTS_TO_STUB_TABLES = [:test, :development]
       
       def self.included(base)
@@ -8,15 +8,15 @@ module ActiveRecord #:nodoc:
       end
       
       module ClassMethods
-        def acts_as_somebody_elses_data owner_name
-          # single table inheritance assumes :type column but our existing tables often have that column already
-          self.inheritance_column = :may_already_have_a_column_called_type  
+        def acts_as_legacy_data owner_name
+          # single table inheritance assumes :type column but our existing tables often have that column already (and were not designed for STI anyway)
+          self.inheritance_column = nil 
 
           # when the entire model is marked as read-only (i.e. a picklist) don't let records be persisted
           before_destroy :prevent_readonly_destroy   #destroy doesn't use the readonly? guard
           
-          include ActiveRecord::Acts::SomebodyElsesData::InstanceMethods
-          extend ActiveRecord::Acts::SomebodyElsesData::SingletonMethods
+          include ActiveRecord::Acts::LegacyData::InstanceMethods
+          extend ActiveRecord::Acts::LegacyData::SingletonMethods
           
           self.set_owner owner_name
           
@@ -58,11 +58,21 @@ module ActiveRecord #:nodoc:
         end
 
         def prevent_readonly_destroy
-          raise ActiveRecord::ReadOnlyRecord if  all_readonly
+          raise ActiveRecord::ReadOnlyRecord if all_readonly
+        end
+        
+        def self.delete
+          raise ActiveRecord::ReadOnlyRecord if all_readonly
+          super
+        end
+
+        def self.destroy
+          raise ActiveRecord::ReadOnlyRecord if all_readonly
+          super
         end
       end
     end
   end
 end
 
-ActiveRecord::Base.send(:include, ActiveRecord::Acts::SomebodyElsesData)
+ActiveRecord::Base.send(:include, ActiveRecord::Acts::LegacyData)

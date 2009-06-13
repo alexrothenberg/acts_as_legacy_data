@@ -1,0 +1,7 @@
+Description:
+    Creates model for existing table in legacy database
+    Creates migration to stub existing table in development
+
+Example:
+    `./script/generate legacy_model schema.table`
+

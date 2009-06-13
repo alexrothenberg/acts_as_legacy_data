@@ -1,1 +1,1 @@
-require 'somebody_elses_data'
+require 'legacy_data'
