@@ -10,6 +10,10 @@ class LegacyModelGenerator < Rails::Generator::NamedBase
       m.migration_template 'migration.rb', 
                            'db/migrate',                                            
                            :assigns => assigns, :migration_file_name=> assigns[:migration_name].underscore
+
+                           look_for = "\n  map.resources #{resource_list}\n"
+                           logger.route "map.resources #{resource_list}"
+      add_factory class_name, assigns[:attributes]
     end
   end
 
@@ -24,22 +28,48 @@ class LegacyModelGenerator < Rails::Generator::NamedBase
   end
   
   
-    def get_local_assigns
-      returning(assigns = {}) do
-        @class_name = $2 if class_name =~ /(.*)::(.*)$/
-        assigns[:schema_name]         = @schema_name || class_nesting
-        assigns[:table_name]          = "tb#{class_name.downcase}"
-        assigns[:primary_key]         = "#{class_name.downcase}id"
-        assigns[:attributes]          = get_legacy_schema(assigns[:schema_name], assigns[:table_name])
-        assigns[:migration_name]      = "CreateStub#{class_name}Table"
-      end
+  def get_local_assigns
+    returning(assigns = {}) do
+      @class_name = $2 if class_name =~ /(.*)::(.*)$/
+      assigns[:schema_name]         = @schema_name || class_nesting
+      assigns[:table_name]          = "tb#{class_name.downcase}"
+      assigns[:primary_key]         = "#{class_name.downcase}id"
+      assigns[:attributes]          = get_legacy_schema(assigns[:schema_name], assigns[:table_name])
+      assigns[:migration_name]      = "CreateStub#{class_name}Table"
     end
-    
-    def get_legacy_schema schema, table
-      legacy_model = Class.new(ActiveRecord::Base) do
-        set_table_name "#{schema}.#{table}"
-        establish_connection 'legacy'
-      end
-      legacy_model.columns
+  end
+  
+  def get_legacy_schema schema, table
+    legacy_model = Class.new(ActiveRecord::Base) do
+      set_table_name "#{schema}.#{table}"
+      establish_connection 'legacy'
     end
+    legacy_model.columns
+  end
+  
+  def add_factory factory_name, columns
+    File.open('spec/factories.rb', 'a') do |file| 
+      file.write "Factory.define :#{factory_name} do |#{factory_name.to_s.first}|\n"
+      columns.each do |c|
+        if c.null == false
+          value = case c.type
+          when :integer
+            "7"
+          when :string
+            "'hi'"
+          when :boolean
+            'false'
+          when :date
+            '{Time.now}'
+          when :datetime
+            '{Time.now}'
+          else
+            raise "forgot about #{c.type}"
+          end
+          file.write "  #{factory_name.to_s.first}.#{c.name} #{value}\n"
+        end
+      end
+      file.write "end\n\n"
+    end
+  end
 end
