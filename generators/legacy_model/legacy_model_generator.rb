@@ -11,8 +11,6 @@ class LegacyModelGenerator < Rails::Generator::NamedBase
                            'db/migrate',                                            
                            :assigns => assigns, :migration_file_name=> assigns[:migration_name].underscore
 
-                           look_for = "\n  map.resources #{resource_list}\n"
-                           logger.route "map.resources #{resource_list}"
       add_factory class_name, assigns[:attributes]
     end
   end
